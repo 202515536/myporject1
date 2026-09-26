@@ -8,6 +8,8 @@ int main(){
     noecho();//关闭自带字符
     keypad(stdscr,TRUE);//识别方向键
     curs_set(1);//显示光标
+    raw();
+    noqiflush();//让ctrl+Q能被程序识别
     getmaxyx(stdscr,max_y,max_x);//获取终端大小
     while(1){
         ch=getch();
