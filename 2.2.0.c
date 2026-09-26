@@ -108,7 +108,7 @@ void buf_delete_char(TextBuffer *b, int y, int x)
         line[i]=line[i+1];         // 从x开始整体左移
 }
 
-// 回车：在 y行 x位置 拆分成两行（2.2新增）
+// 回车在y行x位置拆分成两行
 void buf_split_line(TextBuffer *b, int y, int x)
 {
     char *line=b->lines[y];
@@ -116,9 +116,9 @@ void buf_split_line(TextBuffer *b, int y, int x)
     if(x>len) x=len;
     char first_part[MAX_LINE_LEN];
     char second_part[MAX_LINE_LEN];
-    strncpy(first_part, line, x);    // 光标前部分
+    strncpy(first_part, line, x);//光标前部分
     first_part[x]='\0';
-    strcpy(second_part,line+x);   // 光标后部分
+    strcpy(second_part,line+x);//光标后部分
 
     if (b->line_count>=b->line_capacity)
     {
@@ -128,13 +128,13 @@ void buf_split_line(TextBuffer *b, int y, int x)
     // y行之后的各行整体后移一位
     for(int i=b->line_count; i>y + 1;i--)
         b->lines[i]=b->lines[i-1];
-    free(b->lines[y]);               // 释放原整行
+    free(b->lines[y]);//释放原整行
     b->lines[y]=strdup(first_part);
     b->lines[y+1]=strdup(second_part);
     b->line_count++;
 }
 
-// 从文件加载到内存缓冲区
+//从文件加载到内存缓冲区
 int load_file(TextBuffer *b, const char *filename)
 {
     FILE *fp=fopen(filename, "r");
@@ -142,7 +142,7 @@ int load_file(TextBuffer *b, const char *filename)
     char tmp[MAX_LINE_LEN];
     while (fgets(tmp, MAX_LINE_LEN, fp))
     {
-        // 去掉末尾换行符
+        //去掉末尾换行符
         size_t len = strlen(tmp);//获取这一行字符串长度
         if(len>0 && tmp[len-1] == '\n') tmp[len-1] = '\0';
         buf_append_line(b, tmp);
@@ -157,7 +157,7 @@ void redraw()
     clear();
     int scr_rows, scr_cols;
     getmaxyx(stdscr,scr_rows,scr_cols);
-    int display_lines=scr_rows - 1; // 预留一行给底部
+    int display_lines=scr_rows - 1; //预留一行给底部
     // 绘制可视区域内的文本
     for(int i=0; i<display_lines;i++)
     {
@@ -171,16 +171,16 @@ void redraw()
     refresh();
 }
 
-// 自动调整视口：光标超出屏幕就滚动
+//自动调整视口：光标超出屏幕就滚动
 void adjust_viewport()
 {
     int scr_rows, scr_cols;
     getmaxyx(stdscr,scr_rows,scr_cols);
     int display_rows=scr_rows-1;
-    // 光标在屏幕上方
+    //光标在屏幕上方
     if(text_y<view_y)
         view_y=text_y;
-    // 光标在屏幕下方
+    //光标在屏幕下方
     if(text_y>=view_y+display_rows)//加上最后一行
         view_y=text_y-display_rows + 1;
 }
@@ -233,23 +233,23 @@ int main(int fc, char *fv[])
                 if(text_x<(int)strlen(buf.lines[text_y]))
                     text_x++;
                 break;
-            case KEY_BACKSPACE:   // 退格键（2.2新增）
-            case 127:             // 部分终端退格返回127
+            case KEY_BACKSPACE: //退格键
+            case 127://部分终端退格返回127
                 buf_backspace(&buf, text_y, text_x);
                 break;
-            case KEY_DC:          // Delete键（2.2新增）
+            case KEY_DC://Delete键
                 buf_delete_char(&buf, text_y, text_x);
                 break;
-            case '\n':            // 回车换行（2.2新增）
-            case '\r':            // raw()模式下回车返回13，也处理
+            case '\n'://回车换行
+            case '\r'://raw()模式下回车返回13，也处理
                 buf_split_line(&buf, text_y, text_x);
                 text_y++;
                 text_x = 0;
                 break;
-            case KEY_RESIZE: // 窗口大小改变
+            case KEY_RESIZE: //窗口大小改变
                 break;
             default:
-                // 可打印字符，在光标处插入（2.2新增）
+                // 可打印字符，在光标处插入
                 if(ch>=32 &&ch<=126)
                 {
                     buf_insert_char(&buf, text_y, text_x, ch);
